@@ -1,0 +1,28 @@
+{
+  "name": "Electron-Calculator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amelie2923/electron-calculator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amelie2923/electron-calculator/issues"
+  },
+  "homepage": "https://github.com/amelie2923/electron-calculator#readme",
+  "devDependencies": {
+    "electron": "^10.1.5"
+  },
+  "dependencies": {
+    "ejs": "^3.1.5",
+    "electromon": "^1.0.10",
+    "express": "^4.17.1"
+  }
+}
