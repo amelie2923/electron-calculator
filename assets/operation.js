@@ -54,7 +54,9 @@ keys.addEventListener('click', (event) => {
     return;
   }
   if (target.classList.contains('all-clear')) {
-    console.log('clear', target.value);
+    // console.log('clear', target.value);
+    resetCalculator();
+    updateDisplay();
     return;
   }
   // console.log('digit', target.value);
@@ -91,12 +93,45 @@ function handleOperator(nextOperator) {
   //'parseFloat' converts the string contents of `displayValue`
   //to a floating-point number
   const inputValue = parseFloat(displayValue);
+  //Check if an operator already exists and if waitingForSecondOperand is set to true. If true, value of the operator property is replaced with the new operator
+  if (operator && calculator.waitingForSecondOperand) {
+    calculator.operator = nextOperator;
+    console.log(calculator);
+    return;
+  }
   //verify that 'firstOperand' is null and that the 'inputValue'
   // is not a 'NaN' value
-  if (firstOperand === null && !isNaN(inputValue)) {
+  if (firstOperand == null && !isNaN(inputValue)) {
     // Update the firstOperand property
     calculator.firstOperand = inputValue;
+  } else if (operator) {
+    //checks if the operator property has been assigned an operator
+    const result = calculate(firstOperand, inputValue, operator);
+    calculator.displayValue = String(result);
+    calculator.firstOperand = result;
   }
   calculator.waitingForSecondOperand = true;
   calculator.operator = nextOperator;
+  console.log(calculator);
+}
+
+function calculate(firstOperand, secondOperand, operator) {
+  if (operator === '+') {
+    return firstOperand + secondOperand;
+  } else if (operator === '-') {
+    return firstOperand - secondOperand;
+  } else if (operator === '*') {
+    return firstOperand * secondOperand;
+  } else if (operator === '/') {
+    return firstOperand / secondOperand;
+  }
+  return secondOperand;
+}
+
+function resetCalculator() {
+  calculator.displayValue = '0';
+  calculator.firstOperand = null;
+  calculator.waitingForSecondOperand = false;
+  calculator.operator = null;
+  console.log(calculator);
 }
