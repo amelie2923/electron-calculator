@@ -74,20 +74,26 @@ function inputDigit(digit) {
     //Overwrite 'displayValue' if the current value is '0' otherwise append to it
     calculator.displayValue = displayValue === '0' ? digit : displayValue + digit;
   }
-  console.log(calculator);
+  console.log("Object with values", calculator);
 }
 
 function inputDecimal(dot) {
-  // If the 'displayValue' property does not contain a decimal point
+  if (calculator.waitingForSecondOperand === true) {
+    //waitingForSecondOperand is set to true and a decimal point is entered, displayValue becomes 0. and waitingForSecondOperand is set to false
+    calculator.displayValue = '0.'
+    calculator.waitingForSecondOperand = false;
+    return
+  }
+  //If the 'displayValue' property does not contain a decimal point
   if (!calculator.displayValue.includes(dot)) {
-    // Append the decimal point
+    //Append the decimal point
     calculator.displayValue += dot;
   }
-  console.log(calculator);
+  // console.log(calculator);
 }
 
 //Handling Operators
-function handleOperator(nextOperator) {
+function handleOperator(nextOperator, result) {
   //Destructure the properties on the calculator object
   const { firstOperand, displayValue, operator } = calculator
   //'parseFloat' converts the string contents of `displayValue`
@@ -96,23 +102,25 @@ function handleOperator(nextOperator) {
   //Check if an operator already exists and if waitingForSecondOperand is set to true. If true, value of the operator property is replaced with the new operator
   if (operator && calculator.waitingForSecondOperand) {
     calculator.operator = nextOperator;
-    console.log(calculator);
+    // console.log(calculator);
     return;
   }
   //verify that 'firstOperand' is null and that the 'inputValue'
-  // is not a 'NaN' value
+  //is not a 'not a number' value
   if (firstOperand == null && !isNaN(inputValue)) {
-    // Update the firstOperand property
+    //Update the firstOperand property
     calculator.firstOperand = inputValue;
   } else if (operator) {
     //checks if the operator property has been assigned an operator
     const result = calculate(firstOperand, inputValue, operator);
     calculator.displayValue = String(result);
     calculator.firstOperand = result;
+    if (operator !== '=') {
+      storeResults(firstOperand, operator, displayValue, result);
+    }
   }
   calculator.waitingForSecondOperand = true;
   calculator.operator = nextOperator;
-  console.log(calculator);
 }
 
 function calculate(firstOperand, secondOperand, operator) {
@@ -128,10 +136,54 @@ function calculate(firstOperand, secondOperand, operator) {
   return secondOperand;
 }
 
+
 function resetCalculator() {
   calculator.displayValue = '0';
   calculator.firstOperand = null;
   calculator.waitingForSecondOperand = false;
   calculator.operator = null;
-  console.log(calculator);
+}
+
+function storeResults(firstOperand, operator, displayValue, result) {
+  const historical = localStorage.getItem('operations');
+  const operation = firstOperand + operator + displayValue + ' = ' + result;
+  const calculHisto = operation;
+  console.log(result)
+
+  if (historical) {
+    const operations = JSON.parse(historical);
+    if (operations.length < 10) {
+      operations.push(calculHisto);
+      const operationsString = JSON.stringify(operations);
+      localStorage.setItem('operations', operationsString);
+    } else {
+      for (let index = 9; index > 0; index--) {
+        operations[index] = operations[index - 1];
+      }
+      operations[0] = operation;
+      const operationsString = JSON.stringify(operations);
+      localStorage.setItem('operations', operationsString);
+    }
+  } else {
+    const operations = [];
+    operations.push(calculHisto);
+    const operationsString = JSON.stringify(operations);
+    localStorage.setItem('operations', operationsString);
+  }
+  displayResults();
+}
+
+function displayResults() {
+  const resultsList = document.getElementById('display-operations');
+  const historical = localStorage.getItem('operations');
+  const operations = JSON.parse(historical);
+  if (operations.length > 0) {
+    resultsList.innerHTML = '';
+    operations.forEach(operation => {
+      const li = document.createElement('li');
+      li.classList.add('list-group-item');
+      li.innerHTML = operation;
+      resultsList.append(li);
+    });
+  }
 }
